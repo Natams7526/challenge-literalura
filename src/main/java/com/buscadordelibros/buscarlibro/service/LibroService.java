@@ -5,14 +5,19 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.buscadordelibros.buscarlibro.model.Autor;
 import com.buscadordelibros.buscarlibro.model.DatosAutor;
 import com.buscadordelibros.buscarlibro.model.DatosLibros;
+import com.buscadordelibros.buscarlibro.model.DatosLibrosGuardados;
 import com.buscadordelibros.buscarlibro.model.Libro;
 import com.buscadordelibros.buscarlibro.repository.autorRepository;
 import com.buscadordelibros.buscarlibro.repository.libroRepository;
+
+
+
 
 @Service
 public class LibroService {
@@ -47,5 +52,20 @@ public class LibroService {
 
     private Optional<Autor> autorYaExiste(DatosAutor datosAutor) {
         return autorRepository.findByNombre(datosAutor.nombre());
+    }
+    
+    @Transactional(readOnly = true)
+    public List<DatosLibrosGuardados> obtenerLibrosGuardados() {
+        var libros = libroRepository.findAll(); 
+        return libros.stream()
+            .map(libro -> new DatosLibrosGuardados(
+                libro.getTitulo(),
+                libro.getNumeroDeDescargas(),
+                libro.getIdiomas(),
+                libro.getAutores().stream()
+                      .map(Autor::getNombre)
+                      .toList()
+            ))
+            .toList();
     }
 }

@@ -9,5 +9,8 @@ import com.buscadordelibros.buscarlibro.model.Libro;
 public interface libroRepository extends JpaRepository<Libro, Long> {
 	
 	Optional<Libro> findByTitulo(String titulo);
+	
+	
+	
 
 }

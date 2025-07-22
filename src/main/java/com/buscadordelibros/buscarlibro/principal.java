@@ -1,6 +1,6 @@
 package com.buscadordelibros.buscarlibro;
 
-
+import java.util.Comparator;
 import java.util.DoubleSummaryStatistics;
 import java.util.Optional;
 import java.util.Scanner;
@@ -14,73 +14,124 @@ import com.buscadordelibros.buscarlibro.model.DatosLibros;
 import com.buscadordelibros.buscarlibro.service.LibroService;
 import com.buscadordelibros.buscarlibro.service.consumoAPI;
 import com.buscadordelibros.buscarlibro.service.convierteDatos;
+
 @Component
 public class principal {
-	
-	
+
 	@Autowired
 	private LibroService libroService;
-	
-	private static final String URL_Base = "https://gutendex.com/books/" ;
-	
+
+	private static final String URL_Base = "https://gutendex.com/books/";
+
 	private consumoAPI consumoAPI = new consumoAPI();
-	
+
 	private convierteDatos conversor = new convierteDatos();
-	
+
 	private Scanner teclado = new Scanner(System.in);
-	
-	
-	public void mostrarMenu(){
-		var json = consumoAPI.obtenerDatos(URL_Base);	
+
+	public void mostrarMenu() {
+		
+		 int opcion = -1;
+
+		    while (opcion != 0) {
+		        System.out.println("\n📘 MENÚ PRINCIPAL");
+		        System.out.println("1. Buscar y guardar libro");
+		        System.out.println("2. Listar libros guardados");
+		        System.out.println("0. Salir");
+		        System.out.print("Elige una opción: ");
+
+		        try {
+		            opcion = Integer.parseInt(teclado.nextLine());
+		        } catch (NumberFormatException e) {
+		            System.out.println("❌ Ingresa un número válido.");
+		            continue;
+		        }
+
+		        switch (opcion) {
+		            case 1:
+		                buscarYGuardarLibro();
+		                break;
+		            case 2:
+		                listarLibrosGuardados();
+		                break;
+		                
+		            case 3:
+		            	listarTop10();
+		                break;
+		            case 0:
+		                System.out.println("👋 ¡Hasta luego!");
+		                break;
+		            default:
+		                System.out.println("❌ Opción no válida.");
+		        }
+		    }
+
+	}
+
+	// Busqueda de libros por nombre
+	private void buscarYGuardarLibro() {
+		var json = consumoAPI.obtenerDatos(URL_Base);
 		System.out.println(json);
-		var datos = conversor.obtenerDatos(json,Datos.class);
+		var datos = conversor.obtenerDatos(json, Datos.class);
 		System.out.println(datos);
-		
-		//top 10 de los libros mas descargados 
-		
-		//System.out.println("Top 10 libros mas descargados");
-		//datos.Libros().stream()
-		//.sorted(Comparator.comparing(DatosLibros::numeroDeDescargas).reversed())
-		//.limit(10)
-		//.map(l -> l.titulo().toUpperCase() )
-		//.forEach(System.out::println);
-		
-		//Busqueda de libros por nombre 
-		
 		System.out.println("Ingresa el nombre del Libro");
 		var busquedaLibro = teclado.nextLine();
-		json = consumoAPI.obtenerDatos(URL_Base + "?search="+ busquedaLibro.replace(" ","+")); 
+		json = consumoAPI.obtenerDatos(URL_Base + "?search=" + busquedaLibro.replace(" ", "+"));
 		var datosBusqueda = conversor.obtenerDatos(json, Datos.class);
 		Optional<DatosLibros> librobuscado = datosBusqueda.Libros().stream()
-				.filter(l -> l.titulo().toUpperCase().contains(busquedaLibro.toUpperCase()))
-				.findFirst();
+				.filter(l -> l.titulo().toUpperCase().contains(busquedaLibro.toUpperCase())).findFirst();
 		if (librobuscado.isPresent()) {
-		    DatosLibros datosLibro = librobuscado.get();
-		    System.out.println("📖 Libro encontrado:");
-		    System.out.println(datosLibro);
+			DatosLibros datosLibro = librobuscado.get();
+			System.out.println("📖 Libro encontrado:");
+			System.out.println(datosLibro);
 
-		    libroService.guardarSiNoExiste(datosLibro);
+			libroService.guardarSiNoExiste(datosLibro);
 
 		} else {
-		    System.out.println("❌ No se encontró coincidencia.");
+			System.out.println("❌ No se encontró coincidencia.");
 		}
-	       
-		
-		//Estadisticas
-		
-		DoubleSummaryStatistics estadisticas = datos.Libros().stream()
-				.filter(d -> d.numeroDeDescargas() >0 )
+
+		// Estadisticas
+
+		DoubleSummaryStatistics estadisticas = datos.Libros().stream().filter(d -> d.numeroDeDescargas() > 0)
 				.collect(Collectors.summarizingDouble(DatosLibros::numeroDeDescargas));
 		System.out.println("Cantidad promedio de descargas: " + estadisticas.getAverage());
 		System.out.println("Cantidad maxima de descargas: " + estadisticas.getMax());
 		System.out.println("Cantidad minima de descargas: " + estadisticas.getMin());
 		System.out.println("Cantidad de registros de descargas: " + estadisticas.getMax());
 	}
+
+	// top 10 de los libros mas descargados
+
+	private void listarTop10() {
+		var json = consumoAPI.obtenerDatos(URL_Base);
+		var datos = conversor.obtenerDatos(json, Datos.class);
+		System.out.println("Top 10 libros mas descargados");
+		datos.Libros().stream().sorted(Comparator.comparing(DatosLibros::numeroDeDescargas).reversed()).limit(10)
+				.map(l -> l.titulo().toUpperCase()).forEach(System.out::println);
+	}
 	
+	// Listar los Libros Guardados 
 	
-	
-	
-	
-	
+	private void listarLibrosGuardados() {
+	    System.out.println("📚 Libros buscados previamente:");
+	    var libros = libroService.obtenerLibrosGuardados();
+
+	    if (libros.isEmpty()) {
+	        System.out.println("❌ No hay libros registrados aún.");
+	        return;
+	    }
+
+	    for (int i = 0; i < libros.size(); i++) {
+	        var libro = libros.get(i);
+	        System.out.println("📘 Libro #" + (i + 1));
+	        System.out.println("📖 Título: " + libro.titulo());
+	        System.out.println("📅 Número de descargas: " + libro.numeroDeDescargas());
+	        System.out.println("👨‍💼 Autores:");
+	        libro.autores().forEach(autor -> System.out.println("   ✍️ " + autor));
+	        //System.out.println("🧾 Idiomas: " + libro.idiomas());
+	        System.out.println("------------------------");
+	    }
+	}
 
 }
