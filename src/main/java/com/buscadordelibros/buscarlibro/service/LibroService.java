@@ -68,4 +68,8 @@ public class LibroService {
             ))
             .toList();
     }
+    
+    public long contarLibrosPorIdioma(String idioma) {
+        return libroRepository.countByIdiomasContaining(idioma);
+    }
 }
