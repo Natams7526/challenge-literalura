@@ -25,9 +25,9 @@ public class Autor {
 
     private String nombre;
 
-    private String fechaDeNacimiento;
+    private int fechaDeNacimiento;
 
-    private String fechaDeMuerte;
+    private int fechaDeMuerte;
 
     @ManyToMany(mappedBy = "autores")
     private List<Libro> libros;

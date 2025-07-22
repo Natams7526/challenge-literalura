@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import com.buscadordelibros.buscarlibro.model.Datos;
 import com.buscadordelibros.buscarlibro.model.DatosLibros;
+import com.buscadordelibros.buscarlibro.service.AutorService;
 import com.buscadordelibros.buscarlibro.service.LibroService;
 import com.buscadordelibros.buscarlibro.service.consumoAPI;
 import com.buscadordelibros.buscarlibro.service.convierteDatos;
@@ -20,6 +21,10 @@ public class principal {
 
 	@Autowired
 	private LibroService libroService;
+	
+	@Autowired
+	private AutorService autorService;
+	
 
 	private static final String URL_Base = "https://gutendex.com/books/";
 
@@ -37,6 +42,10 @@ public class principal {
 		        System.out.println("\n📘 MENÚ PRINCIPAL");
 		        System.out.println("1. Buscar y guardar libro");
 		        System.out.println("2. Listar libros guardados");
+		        System.out.println("3. Top 10 libros mas decargados");
+		        System.out.println("4. Listar Autores guardados");
+		        System.out.println("5. Listar Autores vivos");
+		        System.out.println("6. Contar libros fecha");
 		        System.out.println("0. Salir");
 		        System.out.print("Elige una opción: ");
 
@@ -53,10 +62,18 @@ public class principal {
 		                break;
 		            case 2:
 		                listarLibrosGuardados();
-		                break;
-		                
+		                break;		                
 		            case 3:
 		            	listarTop10();
+		                break;		                
+		            case 4:
+		            	listarAutores();
+		                break;		                
+		            case 5:
+		            	listarAutoresVivos();
+		                break;		                
+		            case 6:
+		            	listarLibrosGuardados();
 		                break;
 		            case 0:
 		                System.out.println("👋 ¡Hasta luego!");
@@ -132,6 +149,36 @@ public class principal {
 	        //System.out.println("🧾 Idiomas: " + libro.idiomas());
 	        System.out.println("------------------------");
 	    }
+	        
 	}
 
+	//listar autores registrados
+    private void listarAutores() {
+    	 System.out.println("\n👨‍💼 Todos los autores registrados:");
+    	    var autores = autorService.listarTodosLosAutores();
+    	    autores.forEach(autor -> System.out.println(" - " + autor.getNombre()));
+    }
+    
+    //listar autores vivos en un año 
+    private void listarAutoresVivos() {
+    	 System.out.print("\n⏰ Ingresa un año para ver los autores vivos en esa fecha: ");
+    	    int año = teclado.nextInt();
+    	    teclado.nextLine(); // consumir salto de línea
+
+    	    var autoresVivos = autorService.listarAutoresVivosEn(año);
+    	    if (autoresVivos.isEmpty()) {
+            System.out.println("❌ No hay autores vivos en ese año.");
+    	    } else {
+    	        System.out.println("‍💼 Autores vivos en " + año + ":");
+    	        autoresVivos.forEach(autor -> System.out.println(" - " + autor.getNombre()));
+    	    }
+    }
+    //listar lirbos por idioma
+    
+    private void cantidadLibrosPorIdioma() {
+    	System.out.print("\n🧾 Ingresa un idioma para contar libros (ej: 'en', 'es'): ");
+        String idioma = teclado.nextLine();
+        long cantidad = libroService.contarLibrosPorIdioma(idioma);
+        System.out.println("Hay " + cantidad + " libros en el idioma '" + idioma + "'.");
+    }
 }

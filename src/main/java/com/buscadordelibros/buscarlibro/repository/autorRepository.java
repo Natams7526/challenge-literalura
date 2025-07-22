@@ -11,6 +11,6 @@ public interface autorRepository extends JpaRepository<Autor, Long>{
 	
 	Optional<Autor> findByNombre(String nombre);
 	
-	List<Autor> findByFechaNacimientoBeforeAndFechaMuerteAfter(Integer nacimiento, Integer muerte);
+	List<Autor> findByFechaDeNacimientoBeforeAndFechaDeMuerteAfter(int nacimiento, int muerte);
 
 }

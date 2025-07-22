@@ -20,6 +20,7 @@ public class AutorService {
     }
 
     public List<Autor> listarAutoresVivosEn(int fecha) {
-        return autorRepository.findByFechaNacimientoBeforeAndFechaMuerteAfter(fecha, fecha);
+        return autorRepository.findByFechaDeNacimientoBeforeAndFechaDeMuerteAfter(fecha, fecha);
     }
+	
 }
