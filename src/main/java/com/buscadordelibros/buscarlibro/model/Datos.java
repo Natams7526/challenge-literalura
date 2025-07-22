@@ -1,4 +1,4 @@
-package com.buscadordelibros.model;
+package com.buscadordelibros.buscarlibro.model;
 
 import java.util.List;
 

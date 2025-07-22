@@ -1,16 +1,25 @@
 package com.buscadordelibros.buscarlibro;
-import java.util.Comparator;
+
+
 import java.util.DoubleSummaryStatistics;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
-import com.buscadordelibros.model.Datos;
-import com.buscadordelibros.model.DatosLibros;
-import  com.buscadordelibros.service.consumoAPI;
-import com.buscadordelibros.service.convierteDatos;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import com.buscadordelibros.buscarlibro.model.Datos;
+import com.buscadordelibros.buscarlibro.model.DatosLibros;
+import com.buscadordelibros.buscarlibro.service.LibroService;
+import com.buscadordelibros.buscarlibro.service.consumoAPI;
+import com.buscadordelibros.buscarlibro.service.convierteDatos;
+@Component
 public class principal {
+	
+	
+	@Autowired
+	private LibroService libroService;
 	
 	private static final String URL_Base = "https://gutendex.com/books/" ;
 	
@@ -29,12 +38,12 @@ public class principal {
 		
 		//top 10 de los libros mas descargados 
 		
-		System.out.println("Top 10 libros mas descargados");
-		datos.Libros().stream()
-		.sorted(Comparator.comparing(DatosLibros::numeroDeDescargas).reversed())
-		.limit(10)
-		.map(l -> l.titulo().toUpperCase() )
-		.forEach(System.out::println);
+		//System.out.println("Top 10 libros mas descargados");
+		//datos.Libros().stream()
+		//.sorted(Comparator.comparing(DatosLibros::numeroDeDescargas).reversed())
+		//.limit(10)
+		//.map(l -> l.titulo().toUpperCase() )
+		//.forEach(System.out::println);
 		
 		//Busqueda de libros por nombre 
 		
@@ -45,12 +54,17 @@ public class principal {
 		Optional<DatosLibros> librobuscado = datosBusqueda.Libros().stream()
 				.filter(l -> l.titulo().toUpperCase().contains(busquedaLibro.toUpperCase()))
 				.findFirst();
-		if(librobuscado.isPresent()) {
-			System.out.println("El libro encontrado es : ");
-			System.out.println(librobuscado.get());
-		}else {
-			System.out.println("No se encontro coincidencia");
+		if (librobuscado.isPresent()) {
+		    DatosLibros datosLibro = librobuscado.get();
+		    System.out.println("📖 Libro encontrado:");
+		    System.out.println(datosLibro);
+
+		    libroService.guardarSiNoExiste(datosLibro);
+
+		} else {
+		    System.out.println("❌ No se encontró coincidencia.");
 		}
+	       
 		
 		//Estadisticas
 		

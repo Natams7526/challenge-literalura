@@ -1,4 +1,4 @@
-package com.buscadordelibros.service;
+package com.buscadordelibros.buscarlibro.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

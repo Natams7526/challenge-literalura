@@ -1,4 +1,4 @@
-package com.buscadordelibros.service;
+package com.buscadordelibros.buscarlibro.service;
 
 import java.io.IOException;
 import java.net.URI;

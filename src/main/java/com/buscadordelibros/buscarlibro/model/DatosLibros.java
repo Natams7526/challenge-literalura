@@ -1,4 +1,4 @@
-package com.buscadordelibros.model;
+package com.buscadordelibros.buscarlibro.model;
 
 import java.util.List;
 
@@ -17,6 +17,8 @@ public record DatosLibros(
 
 @JsonAlias("download_count") double numeroDeDescargas) {
 	
-	
+	public Libro toLibro() {
+	    return new Libro(this.titulo(), this.idiomas(), this.numeroDeDescargas());
+	}
 
 }
